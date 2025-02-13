@@ -2,6 +2,7 @@ require('dotenv').config();
 
 const express = require('express');
 const mongoose = require('mongoose');
+const path = require('path');
 const mongoURI = process.env.MONGO_URI;
 const app = express();
 
@@ -29,6 +30,7 @@ mongoose
     console.log('Connexion à MongoDB échouée !', err);
   });
 
+app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use('/api/auth', userRoutes);
 
 module.exports = app;
