@@ -7,6 +7,7 @@ const mongoURI = process.env.MONGO_URI;
 const app = express();
 
 const userRoutes = require('./routes/user');
+const bookRoutes = require('./routes/book');
 
 app.use(express.json()); // important otherwise we cannot access req.body json
 
@@ -24,7 +25,7 @@ app.use((req, res, next) => {
 });
 
 mongoose
-  .connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .connect(mongoURI /*, { useNewUrlParser: true, useUnifiedTopology: true }*/)
   .then(() => console.log('Connexion à MongoDB réussie !'))
   .catch((err) => {
     console.log('Connexion à MongoDB échouée !', err);
@@ -32,5 +33,6 @@ mongoose
 
 app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use('/api/auth', userRoutes);
+app.use('/api/books', bookRoutes);
 
 module.exports = app;
