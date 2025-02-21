@@ -20,7 +20,10 @@ exports.getOneBook = (req, res, next) => {
 };
 
 exports.createBook = (req, res, next) => {
+  console.log('Requête reçue:', req.body);
   const bookObject = JSON.parse(req.body.book);
+  console.log(bookObject);
+
   delete bookObject._id;
   delete bookObject._userId;
   const book = new Book({
@@ -86,3 +89,7 @@ exports.deleteBook = (req, res, next) => {
       res.status(500).json({ error });
     });
 };
+
+exports.getTopThree = (req, res, next) => {};
+
+exports.publishRating = (req, res, next) => {};
