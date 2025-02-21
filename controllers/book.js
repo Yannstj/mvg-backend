@@ -1,3 +1,4 @@
+const { error } = require('console');
 const Book = require('../models/Book');
 const fs = require('fs');
 
@@ -90,6 +91,39 @@ exports.deleteBook = (req, res, next) => {
     });
 };
 
-exports.getTopThree = (req, res, next) => {};
+// exports.getTopThree = (req, res, next) => {
+//   Book.find()
+//     .then((books) => {
+//       //let sortedBooks = [];
+//       //sortedBooks.push(books.averageRating);
+//       //  console.log(sortedBooks);
+//       res.status(200).json([books]);
+//     })
+//     .catch((error) => res.status(404).json({ error }));
+// };
 
-exports.publishRating = (req, res, next) => {};
+exports.publishRate = (req, res, next) => {
+  console.log(req.params);
+  //console.log(req.body.userId);
+  //console.log(req.body.rating);
+  console.log(req.body);
+
+  Book.findOne({ _id: req.params.id })
+    .then((book) => {
+      if (req.body.userId === book.ratings.userId) {
+        res.status(401).json((error) => {
+          error;
+        });
+      } else {
+        console.log('consition reach');
+
+        Book.updateOne({ _id: req.params.id }, { ...book, ratings: req.body })
+          .then(() => {
+            res.status(200).json({ message: 'Note ajouté' });
+          })
+          .catch((error) => res.status(401).json({ error }));
+      }
+      // console.log(book.ratings);
+    })
+    .catch((error) => res.status(400).json({ error }));
+};
