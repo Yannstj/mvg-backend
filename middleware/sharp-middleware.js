@@ -1,29 +1,34 @@
 const sharp = require('sharp');
 const path = require('path');
-//const fs = require('fs');
+const fs = require('fs');
 
-// Middleware pour traiter l'image avec Sharp après l'upload
+const IMAGE_FOLDER = 'images';
+
+if (!fs.existsSync(IMAGE_FOLDER)) {
+  fs.mkdirSync(IMAGE_FOLDER);
+}
+
 const processImage = async (req, res, next) => {
-  if (req.file) {
-    try {
-      const filePath = path.join('images', req.file.filename); // Chemin du fichier enregistré
-
-      // Redimensionner et convertir l'image en WebP
-      await sharp(req.file.path)
-        .resize(400) // Redimensionner à 400px de largeur (garde le ratio)
-        .toFormat('webp') // Convertir au format WebP
-        .toFile(filePath); // Sauvegarder l'image traitée
-
-      console.log('Image traitée et sauvegardée:', filePath);
-      next(); // Passe à l'étape suivante (par exemple, création de livre)
-    } catch (error) {
-      console.error("Erreur lors du traitement de l'image:", error);
-      return res
-        .status(500)
-        .json({ error: "Erreur lors du traitement de l'image" });
-    }
-  } else {
+  if (!req.file) {
     return res.status(400).json({ error: 'Aucune image reçue' });
+  }
+
+  try {
+    const fileName = `image_${Date.now()}.webp`;
+    const filePath = path.join(IMAGE_FOLDER, fileName);
+
+    await sharp(req.file.buffer).resize(400).toFormat('webp').toFile(filePath);
+
+    // Ajouter le chemin du fichier traité à req.file pour l'utiliser plus tard
+    req.file.filename = fileName;
+    req.file.path = filePath;
+    req.file.mimetype = 'image/webp';
+
+    console.log('Image traitée et sauvegardée en WebP:', filePath);
+    next();
+  } catch (error) {
+    console.error("Erreur lors du traitement de l'image:", error);
+    return res.status(500).json({ error });
   }
 };
 

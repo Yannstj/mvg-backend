@@ -102,7 +102,7 @@ exports.rateBook = (req, res, next) => {
       );
 
       if (alreadyRated) {
-        return res.status(409).json({ message: 'Livre déjà évalué' }); // 409 Conflict
+        return res.status(409).json({ message: 'Livre déjà évalué' });
       } else {
         book.ratings.push(userRating);
 
