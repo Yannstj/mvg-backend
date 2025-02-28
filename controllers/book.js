@@ -1,4 +1,3 @@
-const { error } = require('console');
 const Book = require('../models/Book');
 const fs = require('fs');
 
@@ -91,39 +90,47 @@ exports.deleteBook = (req, res, next) => {
     });
 };
 
-// exports.getTopThree = (req, res, next) => {
-//   Book.find()
-//     .then((books) => {
-//       //let sortedBooks = [];
-//       //sortedBooks.push(books.averageRating);
-//       //  console.log(sortedBooks);
-//       res.status(200).json([books]);
-//     })
-//     .catch((error) => res.status(404).json({ error }));
-// };
-
-exports.publishRate = (req, res, next) => {
-  console.log(req.params);
-  //console.log(req.body.userId);
-  //console.log(req.body.rating);
-  console.log(req.body);
+exports.rateBook = (req, res, next) => {
+  const userId = req.auth.userId;
+  const rating = req.body.rating;
+  const userRating = { userId, grade: rating };
 
   Book.findOne({ _id: req.params.id })
     .then((book) => {
-      if (req.body.userId === book.ratings.userId) {
-        res.status(401).json((error) => {
-          error;
-        });
-      } else {
-        console.log('consition reach');
+      const alreadyRated = book.ratings.find(
+        (rating) => rating.userId === userId
+      );
 
-        Book.updateOne({ _id: req.params.id }, { ...book, ratings: req.body })
-          .then(() => {
-            res.status(200).json({ message: 'Note ajouté' });
-          })
-          .catch((error) => res.status(401).json({ error }));
+      if (alreadyRated) {
+        return res.status(409).json({ message: 'Livre déjà évalué' }); // 409 Conflict
+      } else {
+        book.ratings.push(userRating);
+
+        const totalRatings = book.ratings.reduce(
+          (sum, rating) => sum + rating.grade,
+          0
+        );
+        const averageRating = totalRatings / book.ratings.length;
+
+        book.averageRating = Math.round(averageRating);
+
+        return book
+          .save()
+          .then((updatedBook) => res.status(200).json(updatedBook))
+          .catch((error) => res.status(400).json({ error }));
       }
-      // console.log(book.ratings);
     })
     .catch((error) => res.status(400).json({ error }));
+};
+
+exports.getTopThree = (req, res, next) => {
+  Book.find()
+    .sort({ averageRating: -1 }) // Trie les livres par notation décroissante
+    .limit(3) // Limite à 3 livres
+    .then((books) => {
+      res.status(200).json(books);
+    })
+    .catch((error) => {
+      res.status(404).json({ error });
+    });
 };
