@@ -17,13 +17,12 @@ const processImage = async (req, res, next) => {
     const fileName = `image_${Date.now()}.webp`;
     const filePath = path.join(IMAGE_FOLDER, fileName);
 
-    await sharp(req.file.buffer).resize(400).toFormat('webp').toFile(filePath);
+    await sharp(req.file.buffer).resize(500).toFormat('webp').toFile(filePath);
 
     // Ajouter le chemin du fichier traité à req.file pour l'utiliser plus tard
     req.file.filename = fileName;
     req.file.path = filePath;
     req.file.mimetype = 'image/webp';
-
     // console.log('Image traitée et sauvegardée en WebP:', filePath);
     next();
   } catch (error) {
