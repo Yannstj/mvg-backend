@@ -20,9 +20,9 @@ exports.getOneBook = (req, res, next) => {
 };
 
 exports.createBook = (req, res, next) => {
-  console.log('Requête reçue:', req.body);
+  //console.log('Requête reçue:', req.body);
   const bookObject = JSON.parse(req.body.book);
-  console.log(bookObject);
+  //console.log(bookObject);
 
   delete bookObject._id;
   delete bookObject._userId;

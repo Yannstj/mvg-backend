@@ -10,7 +10,7 @@ if (!fs.existsSync(IMAGE_FOLDER)) {
 
 const processImage = async (req, res, next) => {
   if (!req.file) {
-    return res.status(400).json({ error: 'Aucune image reçue' });
+    return next();
   }
 
   try {
@@ -24,10 +24,10 @@ const processImage = async (req, res, next) => {
     req.file.path = filePath;
     req.file.mimetype = 'image/webp';
 
-    console.log('Image traitée et sauvegardée en WebP:', filePath);
+    // console.log('Image traitée et sauvegardée en WebP:', filePath);
     next();
   } catch (error) {
-    console.error("Erreur lors du traitement de l'image:", error);
+    // console.error("Erreur lors du traitement de l'image:", error);
     return res.status(500).json({ error });
   }
 };
